@@ -1,0 +1,44 @@
+﻿services:
+  gateway_768:
+    image: gateway
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+    environment:
+      - GATEWAY_ID=00:1A:2B:3C:4D:5E
+  
+  gateway_1200:
+    image: gateway
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+    environment:
+      - GATEWAY_ID=00:1B:44:11:3A:B7
+  
+  gateway_4311:
+    image: gateway
+    build:
+      context: .
+      dockerfile: Gateway/Dockerfile
+    environment:
+      - GATEWAY_ID=00:1D:92:7E:5F:2C
+
+  server:
+    image: server
+    build:
+      context: .
+      dockerfile: Server/Dockerfile
+    volumes:
+      - ./Server/Util:/app/Util
+    environment:
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    environment:
+      - NATS_SERVER_NAME=nats
+
