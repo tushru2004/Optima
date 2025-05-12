@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Server.ConfigurationManagement.Elements;
+
 namespace Server.ConfigurationManagement;
 public class GatewayConfig
 {

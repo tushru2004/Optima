@@ -1,4 +1,4 @@
-namespace Server.ConfigurationManagement;
+namespace Server.ConfigurationManagement.Elements;
 public class TcpIpDevice
 {
     public string Name { get; set; }

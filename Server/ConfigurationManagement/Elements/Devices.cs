@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Server.ConfigurationManagement;
+namespace Server.ConfigurationManagement.Elements;
 
 public class Devices
 {

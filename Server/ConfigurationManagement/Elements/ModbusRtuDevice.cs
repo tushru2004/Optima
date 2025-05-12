@@ -1,4 +1,4 @@
-namespace Server.ConfigurationManagement;
+namespace Server.ConfigurationManagement.Elements;
 public class ModbusRtuDevice
 {
     public string Name { get; set; }

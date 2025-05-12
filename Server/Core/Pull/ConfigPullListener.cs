@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using NATS.Client;
 using Server.ConfigurationManagement;
+using Server.ConfigurationManagement.Elements;
 
 namespace Server.Core.Pull;
 
