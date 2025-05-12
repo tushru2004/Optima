@@ -34,7 +34,6 @@
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
 
-
   nats:
     image: nats:latest
     ports:

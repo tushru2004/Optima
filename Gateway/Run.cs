@@ -1,10 +1,11 @@
 ﻿using NATS.Client;
 using System.Text;
+using Gateway.Core;
 using Microsoft.Extensions.Configuration;
 using Utf8Json;
 namespace Gateway;
 
-internal class run
+internal class Run
 {
     private static IConnection? _connection;
 
@@ -24,7 +25,12 @@ internal class run
             Console.WriteLine("File 'response.json' does not exist.");
         }
         InitializeConnection();
-        await RequestConfigAsync(gatewayId);
+        if (_connection != null)
+        {
+            var updateManager = new UpdateManager(_connection);
+            await updateManager.RequestConfigAsync(gatewayId);
+        }
+
         SubscribeToServerUpdates(gatewayId);
         await Task.Delay(Timeout.Infinite); // Keep the application running
     }
@@ -43,27 +49,6 @@ internal class run
         _connection = new ConnectionFactory().CreateConnection(options);
         Console.WriteLine("Connected to NATS server");
     }
-
-    private static async Task RequestConfigAsync(string message)
-    {
-        if (_connection == null)
-            throw new InvalidOperationException("NATS connection not initialized");
-
-        const string subject = "gateway.config.pull";
-        try
-        {
-            var response = await _connection.RequestAsync(subject, Encoding.UTF8.GetBytes(message), 5000); // 5-second timeout
-            var responseMessage = Encoding.UTF8.GetString(response.Data);
-            await File.WriteAllTextAsync("response.json", responseMessage);
-            Console.WriteLine($"Sent request: {message}");
-            Console.WriteLine($"Received response: {responseMessage}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to send request: {ex.Message}");
-        }
-    }
-
     private static void SubscribeToServerUpdates(string gatewayId)
     {
         if (_connection == null)

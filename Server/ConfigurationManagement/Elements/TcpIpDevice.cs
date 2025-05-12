@@ -1,7 +1,7 @@
 namespace Server.ConfigurationManagement.Elements;
 public class TcpIpDevice
 {
-    public string Name { get; set; }
-    public string Ip { get; set; }
-    public int Port { get; set; }
+    public required string Name { get; set; }
+    public required string Ip { get; set; }
+    public required int Port { get; set; }
 }
