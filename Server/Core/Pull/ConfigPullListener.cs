@@ -1,11 +1,11 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using NATS.Client;
-using Server.Util.Models;
+using Server.Util;
 
 namespace Server.Core.Pull;
 
-public class ConfigPuller
+public class ConfigPullListener
 {
     private static IConnection? _connection;
 

@@ -3,15 +3,14 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using NATS.Client;
 using Server.Util;
-using Server.Util.Models;
 
 namespace Server.Nats;
 
-public class NatsHelper
+public class NatsManager
 {
     private readonly Options _options;
 
-    public NatsHelper()
+    public NatsManager()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -67,23 +66,35 @@ public class NatsHelper
     {
         try
         {
-            using var connection = new ConnectionFactory().CreateConnection(_options);
+            var options = ConnectionFactory.GetDefaultOptions();
+            options.Url = "nats://nats:4222"; // NATS server URL
+            
+            using var connection = new ConnectionFactory().CreateConnection(options);
             const string subject = "help.request";
-
+            
             connection.SubscribeAsync(subject, (_, args) =>
             {
-                try
-                {
-                    var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
-                    Console.WriteLine($"Received request: {requestMessage}");
-                    onRequestReceived?.Invoke(requestMessage);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error processing the request message: {ex.Message}");
-                    throw;
-                }
+                var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
+                Console.WriteLine($"Received request: {requestMessage}");
+                onRequestReceived?.Invoke(requestMessage);
             });
+            // using var connection = new ConnectionFactory().CreateConnection(_options);
+            // const string subject = "help.request";
+
+            // connection.SubscribeAsync(subject, (_, args) =>
+            // {
+            //     try
+            //     {
+            //         var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
+            //         Console.WriteLine($"Received request: {requestMessage}");
+            //         onRequestReceived?.Invoke(requestMessage);
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         Console.WriteLine($"Error processing the request message: {ex.Message}");
+            //         throw;
+            //     }
+            // });
         }
         catch (NATSConnectionException ex)
         {
@@ -95,6 +106,5 @@ public class NatsHelper
             Console.WriteLine($"Unexpected error: {ex.Message}");
             throw;
         }
-        Console.WriteLine($"Listening for requests on subject");
     }
 }

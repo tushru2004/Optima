@@ -1,35 +1,37 @@
 ﻿using NATS.Client;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Utf8Json;
-
 namespace Gateway;
 
-internal class Program
+internal class run
 {
     private static IConnection? _connection;
 
     private static async Task Main(string[] args)
     {
         AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
-
         var gatewayId = Environment.GetEnvironmentVariable("GATEWAY_ID")
                         ?? throw new InvalidOperationException("Environment variable 'GATEWAY_ID' is not set.");
-
         Console.WriteLine("Gateway is subscribing to messages...");
-
+        
         InitializeConnection();
-
-        await RequestHelpAsync("Hello from Gateway!");
-
-        SubscribeToGatewayMessages(gatewayId);
-
+        await RequestConfigAsync(gatewayId);
+        SubscribeToServerUpdates(gatewayId);
         await Task.Delay(Timeout.Infinite); // Keep the application running
     }
 
     private static void InitializeConnection()
     {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", false, true)
+            .Build();
         var options = ConnectionFactory.GetDefaultOptions();
-        options.Url = "nats://nats:4222";
+        var natsConfig = configuration.GetSection("NatsConfiguration").Get<NatsConfiguration>()
+                         ?? throw new InvalidOperationException(
+                             "NatsConfiguration section is missing in appsettings.json");
+        options.Url = natsConfig.Url;
 
         options.DisconnectedEventHandler = (_, _) => Console.WriteLine("Disconnected from NATS server");
         options.ReconnectedEventHandler = (_, _) => Console.WriteLine("Reconnected to NATS server");
@@ -39,13 +41,12 @@ internal class Program
         Console.WriteLine("Connected to NATS server");
     }
 
-    private static async Task RequestHelpAsync(string message)
+    private static async Task RequestConfigAsync(string message)
     {
         if (_connection == null)
             throw new InvalidOperationException("NATS connection not initialized");
 
-        const string subject = "help.request";
-
+        const string subject = "gateway.config.pull";
         try
         {
             var response = await _connection.RequestAsync(subject, Encoding.UTF8.GetBytes(message), 5000); // 5-second timeout
@@ -60,7 +61,7 @@ internal class Program
         }
     }
 
-    private static void SubscribeToGatewayMessages(string gatewayId)
+    private static void SubscribeToServerUpdates(string gatewayId)
     {
         if (_connection == null)
             throw new InvalidOperationException("NATS connection not initialized");
