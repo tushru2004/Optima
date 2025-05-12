@@ -41,7 +41,7 @@ public class UpdateManager
                 _lastRead = currentChange;
                 Console.WriteLine($"File '{e.FullPath}' updated. Last write time: {currentChange}");
                 Console.WriteLine($"Time to push updates to ALL gateways");
-                new NatsHelper().PushConfigs();
+                new NatsHelper().Publish();
             }
 
         };
