@@ -30,7 +30,7 @@
       context: .
       dockerfile: Server/Dockerfile
     volumes:
-      - ./Server/Util:/app/Util
+      - ./Server/ConfigurationManagement:/app/ConfigurationManagement
     environment:
       - DOTNET_USE_POLLING_FILE_WATCHER=true
 

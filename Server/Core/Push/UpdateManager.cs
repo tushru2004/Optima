@@ -11,7 +11,7 @@ public class UpdateManager
 
     public void WatchGatewayConfigs()
     {
-        var filePath = "Util/ALLGatewayConfigs.json";
+        var filePath = "ConfigurationManagement/ALLGatewayConfigs.json";
         var directoryPath = Path.GetDirectoryName(filePath);
 
         if (directoryPath == null || !Directory.Exists(directoryPath))

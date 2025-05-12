@@ -1,0 +1,82 @@
+{
+  "gateways": [
+    {
+      "gateway_id": "00:1A:2B:3C:4D:5E",
+      "gateway_name": "Gateway 1",
+      "facility_name": "Facility Al",
+      "devices": {
+        "tcp_ip": [
+          {
+            "name": "Device 11",
+            "ip": "192.168.1.1",
+            "port": 502
+          },
+          {
+            "name": "Device 2",
+            "ip": "192.168.1.2",
+            "port": 503
+          }
+        ],
+        "modbus_rtu": [
+          {
+            "name": "Modbus Device 10",
+            "address": "1",
+            "register": 40001
+          }
+        ]
+      }
+    },
+    {
+      "gateway_id": "00:1B:44:11:3A:B7",
+      "gateway_name": "Gateway 2",
+      "facility_name": "Facility B",
+      "devices": {
+        "tcp_ip": [
+          {
+            "name": "Device 3",
+            "ip": "192.168.2.1",
+            "port": 504
+          }
+        ],
+        "modbus_rtu": [
+          {
+            "name": "Modbus Device 2",
+            "address": "2",
+            "register": 40002
+          },
+          {
+            "name": "Modbus Device 3",
+            "address": "3",
+            "register": 40003
+          }
+        ]
+      }
+    },
+    {
+      "gateway_id":"00:1D:92:7E:5F:2C",
+      "gateway_name": "Gateway 3",
+      "facility_name": "Facility C",
+      "devices": {
+        "tcp_ip": [
+          {
+            "name": "Device 40",
+            "ip": "192.168.3.1",
+            "port": 505
+          },
+          {
+            "name": "Device 50",
+            "ip": "192.168.3.2",
+            "port": 506
+          }
+        ],
+        "modbus_rtu": [
+          {
+            "name": "Modbus Device 4",
+            "address": "4",
+            "register": 40004
+          }
+        ]
+      }
+    }
+  ]
+}

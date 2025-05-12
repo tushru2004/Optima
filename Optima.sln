@@ -1,6 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Optima", "Optima.csproj", "{31637DA2-388B-4246-AF4E-50E333388526}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5700334E-FF09-4EF3-BD1F-E64F94C80D35}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{BD52C2F4-81E5-499D-946D-50C9A7560309}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -8,9 +15,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{31637DA2-388B-4246-AF4E-50E333388526}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31637DA2-388B-4246-AF4E-50E333388526}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31637DA2-388B-4246-AF4E-50E333388526}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31637DA2-388B-4246-AF4E-50E333388526}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD52C2F4-81E5-499D-946D-50C9A7560309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD52C2F4-81E5-499D-946D-50C9A7560309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD52C2F4-81E5-499D-946D-50C9A7560309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD52C2F4-81E5-499D-946D-50C9A7560309}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
