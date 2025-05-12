@@ -14,7 +14,15 @@ internal class run
         var gatewayId = Environment.GetEnvironmentVariable("GATEWAY_ID")
                         ?? throw new InvalidOperationException("Environment variable 'GATEWAY_ID' is not set.");
         Console.WriteLine("Gateway is subscribing to messages...");
-        
+        if (File.Exists("response.json"))
+        {
+            var jsonContent = await File.ReadAllTextAsync("response.json");
+            Console.WriteLine($"JSON Content: {jsonContent}");
+        }
+        else
+        {
+            Console.WriteLine("File 'response.json' does not exist.");
+        }
         InitializeConnection();
         await RequestConfigAsync(gatewayId);
         SubscribeToServerUpdates(gatewayId);
@@ -32,11 +40,6 @@ internal class run
                          ?? throw new InvalidOperationException(
                              "NatsConfiguration section is missing in appsettings.json");
         options.Url = natsConfig.Url;
-
-        options.DisconnectedEventHandler = (_, _) => Console.WriteLine("Disconnected from NATS server");
-        options.ReconnectedEventHandler = (_, _) => Console.WriteLine("Reconnected to NATS server");
-        options.ClosedEventHandler = (_, _) => Console.WriteLine("NATS connection closed");
-
         _connection = new ConnectionFactory().CreateConnection(options);
         Console.WriteLine("Connected to NATS server");
     }
@@ -51,7 +54,7 @@ internal class run
         {
             var response = await _connection.RequestAsync(subject, Encoding.UTF8.GetBytes(message), 5000); // 5-second timeout
             var responseMessage = Encoding.UTF8.GetString(response.Data);
-
+            await File.WriteAllTextAsync("response.json", responseMessage);
             Console.WriteLine($"Sent request: {message}");
             Console.WriteLine($"Received response: {responseMessage}");
         }
@@ -65,14 +68,11 @@ internal class run
     {
         if (_connection == null)
             throw new InvalidOperationException("NATS connection not initialized");
-
         var subject = $"gateway.{gatewayId}.messages";
-
         _connection.SubscribeAsync(subject, (_, msgArgs) =>
         {
             var message = Encoding.UTF8.GetString(msgArgs.Message.Data);
             Console.WriteLine($"Message received on subject '{subject}': {message}");
-
             try
             {
                 var formattedJson = JsonSerializer.PrettyPrint(msgArgs.Message.Data);

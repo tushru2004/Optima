@@ -18,4 +18,5 @@ RUN dotnet publish "./Gateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY Gateway/appsettings.json .
 ENTRYPOINT ["dotnet", "Gateway.dll"]

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using NATS.Client;
 using Server.Util;
@@ -23,19 +24,20 @@ public class ConfigPullListener
                                  "NatsConfiguration section is missing in appsettings.json");
             options.Url = natsConfig.Url;
             _connection = new ConnectionFactory().CreateConnection(options);
-            const string subject = "help.request";
-            const string replySubject = "help.response";
+            const string subject = "gateway.config.pull";
 
             _connection.SubscribeAsync(subject, (_, args) =>
             {
                 var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
                 Console.WriteLine($"Received request: {requestMessage}");
+                var gatewayId = requestMessage;
+                var config = GatewayConfig.GetById(gatewayId);
 
-                // Check if the request has a ReplyTo subject
-                if (!string.IsNullOrEmpty(args.Message.Reply))
+                if (config != null && !string.IsNullOrEmpty(args.Message.Reply))
                 {
+                    var configJson = JsonSerializer.Serialize(config);
                     var responseMessage = $"Response to: {requestMessage}";
-                    _connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(responseMessage));
+                    _connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(configJson));
                     Console.WriteLine($"Sent response: {responseMessage}");
                 }
                 else

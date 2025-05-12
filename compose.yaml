@@ -6,7 +6,8 @@
       dockerfile: Gateway/Dockerfile
     environment:
       - GATEWAY_ID=00:1A:2B:3C:4D:5E
-  
+    volumes:
+      - ./Gateway/response.json:/app/response.json
   gateway_1200:
     image: gateway
     build:

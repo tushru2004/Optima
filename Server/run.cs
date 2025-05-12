@@ -23,9 +23,9 @@
 //     var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
 //     Console.WriteLine($"Received request: {requestMessage}");
 // });
-ConfigPuller.ListenForGatewayConfigRequest();
+ConfigPullListener.ListenForGatewayConfigRequest();
 Console.WriteLine("Server is running. Press Ctrl+C to exit...");
-AppDomain.CurrentDomain.ProcessExit += (s, e) => ConfigPuller.DisposeConnection();
+AppDomain.CurrentDomain.ProcessExit += (s, e) => ConfigPullListener.DisposeConnection();
 while (true)
 {
     Thread.Sleep(1000);
