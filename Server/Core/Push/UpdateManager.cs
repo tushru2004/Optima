@@ -5,11 +5,11 @@ namespace Server.Core.Push;
 using System.IO;
 
 
-public class UpdateManager
-{       
+public class UpdateManager(NatsManager natsManager)
+{
     private static DateTime _lastRead = DateTime.MinValue;
 
-    public void WatchGatewayConfigs()
+    public void PushUpdates()
     {
         var filePath = "ConfigurationManagement/ALLGatewayConfigs.json";
         var directoryPath = Path.GetDirectoryName(filePath);
@@ -41,7 +41,7 @@ public class UpdateManager
                 _lastRead = currentChange;
                 Console.WriteLine($"File '{e.FullPath}' updated. Last write time: {currentChange}");
                 Console.WriteLine($"Time to push updates to ALL gateways");
-                new NatsManager().Publish();
+                natsManager.Publish();
             }
 
         };
