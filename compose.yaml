@@ -1,5 +1,5 @@
 ﻿services:
-  gateway_768:
+  gateway_1:
     image: gateway
     build:
       context: .
@@ -8,7 +8,7 @@
       - GATEWAY_ID=00:1A:2B:3C:4D:5E
     volumes:
       - ./Gateway/response.json:/app/response.json
-  gateway_1200:
+  gateway_2:
     image: gateway
     build:
       context: .
@@ -16,7 +16,7 @@
     environment:
       - GATEWAY_ID=00:1B:44:11:3A:B7
   
-  gateway_4311:
+  gateway_3:
     image: gateway
     build:
       context: .

@@ -1,9 +1,6 @@
 using Server.Nats;
 
-namespace Server.Core.Push;
-
-using System.IO;
-
+namespace Server.Core;
 
 public class UpdateManager(NatsManager natsManager)
 {
@@ -48,6 +45,11 @@ public class UpdateManager(NatsManager natsManager)
 
         watcher.EnableRaisingEvents = true;
         Console.WriteLine($"Watching for changes in file: {filePath}");
+    }
+    
+    public void ListenForGatewayConfigRequest()
+    {
+        natsManager.ListenForGatewayConfigRequest();
     }
 }
 

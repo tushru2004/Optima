@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NATS.Client;
 using Server.ConfigurationManagement.Elements;
-using Server.Core.Pull;
-using Server.Core.Push;
+using Server.Core;
 using Server.Nats;
 
 namespace Server;
@@ -46,31 +45,10 @@ internal class Run
         if (_connection != null)
         {
             var natsManager = new NatsManager(_connection);
-            new UpdateManager(natsManager).PushUpdates();
-            new ConfigPullListener(_connection).ListenForGatewayConfigRequest();
+            var updateManager = new UpdateManager(natsManager);
+            updateManager.ListenForGatewayConfigRequest();
+            updateManager.PushUpdates();
         }
-
-        //NatsManager natsManager = new NatsManager();
-
-        // ConfigPuller.ListenForGatewayConfigRequest();
-        //
-        // Console.WriteLine("Server is running. Press Ctrl+C to exit...");
-        //
-        // while (true)
-        // {
-        //     Thread.Sleep(1000);
-        // }
-        // var options = ConnectionFactory.GetDefaultOptions();
-        // options.Url = "nats://nats:4222"; // NATS server URL
-        //
-        // using var connection = new ConnectionFactory().CreateConnection(options);
-        // const string subject = "help.request";
-        //
-        // connection.SubscribeAsync(subject, (_, args) =>
-        // {
-        //     var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
-        //     Console.WriteLine($"Received request: {requestMessage}");
-        // });
         Console.WriteLine("Server is running. Press Ctrl+C to exit...");
         while (true)
         {

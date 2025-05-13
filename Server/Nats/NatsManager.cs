@@ -7,14 +7,9 @@ using Server.ConfigurationManagement.Elements;
 
 namespace Server.Nats;
 
-public class NatsManager
+public class NatsManager(IConnection connection)
 {
-    private readonly IConnection _connection;
-    private readonly Options _options;
-    public NatsManager(IConnection connection)
-    {
-        _connection = connection ?? throw new ArgumentNullException(nameof(connection));
-    }
+    private readonly IConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
     public void Publish()
     {
@@ -22,7 +17,6 @@ public class NatsManager
         foreach (var gateway in allGatewayConfigs)
         {
             var gatewayId = gateway.GatewayId;
-
             var subject = $"gateway.{gatewayId}.messages";
             var message = JsonSerializer.Serialize(gateway);
 
@@ -42,34 +36,30 @@ public class NatsManager
         }
     }
 
-    public void ListenToGatewayConfigRequest(Action<string>? onRequestReceived)
+    public void ListenForGatewayConfigRequest()
     {
         try
         {
-            const string subject = "help.request";
-            _connection.SubscribeAsync(subject, (_, args) =>
+            const string subject = "gateway.config.pull";
+            connection.SubscribeAsync(subject, (_, args) =>
             {
                 var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
                 Console.WriteLine($"Received request: {requestMessage}");
-                onRequestReceived?.Invoke(requestMessage);
-            });
-            // using var connection = new ConnectionFactory().CreateConnection(_options);
-            // const string subject = "help.request";
+                var gatewayId = requestMessage;
+                var config = GatewayConfig.GetById(gatewayId);
 
-            // connection.SubscribeAsync(subject, (_, args) =>
-            // {
-            //     try
-            //     {
-            //         var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
-            //         Console.WriteLine($"Received request: {requestMessage}");
-            //         onRequestReceived?.Invoke(requestMessage);
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //         Console.WriteLine($"Error processing the request message: {ex.Message}");
-            //         throw;
-            //     }
-            // });
+                if (config != null && !string.IsNullOrEmpty(args.Message.Reply))
+                {
+                    var configJson = JsonSerializer.Serialize(config);
+                    var responseMessage = $"Response to: {requestMessage}";
+                    connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(configJson));
+                    Console.WriteLine($"Sent response: {responseMessage}");
+                }
+                else
+                {
+                    Console.WriteLine("No ReplyTo subject found in the request.");
+                }
+            });
         }
         catch (NATSConnectionException ex)
         {
@@ -82,4 +72,5 @@ public class NatsManager
             throw;
         }
     }
+
 }
