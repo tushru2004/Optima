@@ -52,7 +52,7 @@ public class UpdateManagerTests
     public void ListenForGatewayConfigRequest_ShouldProcessValidRequests()
     {
         var subject = "gateway.config.pull";
-        var requestMessage = "00:1A:2B:3C:4D:5E";
+        var requestMessage = "1";
         var replyTo = "reply-subject";
         var messageData = Encoding.UTF8.GetBytes(requestMessage);
         var args = new MsgHandlerEventArgs(new Msg
@@ -77,7 +77,7 @@ public class UpdateManagerTests
     public void ListenForGatewayConfigRequest_ShouldThrowException_WhenNoReplyTo()
     {
         var subject = "gateway.config.pull";
-        var requestMessage = "00:1A:2B:3C:4D:5E";
+        var requestMessage = "2";
         var messageData = Encoding.UTF8.GetBytes(requestMessage);
         var args = new MsgHandlerEventArgs(new Msg
         {
