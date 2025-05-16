@@ -1,9 +1,5 @@
 ﻿using NATS.Client;
 using Gateway.Core;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Gateway.Configuration;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -33,7 +29,7 @@ internal class Run
         string content = fileExists ? await File.ReadAllTextAsync(gatewayConfigFile) : string.Empty;
 
         if (content.Length == 0){
-            Log.Warning("Configuration file {FilePath} is empty ", gatewayConfigFile);
+            Log.Warning("Configuration file {gatewayConfigFile} is empty ", gatewayConfigFile);
         }
         Log.Information(
             "Gateway configuration file {FilePath} {FileStatus}. {FileContent}", 
