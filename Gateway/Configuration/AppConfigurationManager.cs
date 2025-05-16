@@ -34,7 +34,7 @@ public class AppConfigurationProvider : IAppConfigurationProvider
         var settings = GetSection<GatewayAppSettings>("GatewayAppSettings");
         var baseFile = settings.ConfigFilePathBase;
         var baseFileExt = settings.ConfigFilePathExt;
-        
+
         return $"{baseFile}_{gatewayId}.{baseFileExt}";
     }
 }

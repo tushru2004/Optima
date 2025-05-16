@@ -3,7 +3,7 @@ using Serilog;
 
 namespace Server.Core;
 
-public class UpdateManager(NatsManager updateManager)
+public class UpdateManager(NatsManager natsManager)
 {
     private static DateTime _lastRead = DateTime.MinValue;
 
@@ -37,7 +37,7 @@ public class UpdateManager(NatsManager updateManager)
                 Log.Information("File updated. Last write time: {LastWriteTime}, Path: {FilePath}", currentChange,
                     e.FullPath);
                 Log.Information("Pushing updates to all gateways");
-                updateManager.Publish();
+                natsManager.Publish();
             }
         };
 
@@ -47,6 +47,6 @@ public class UpdateManager(NatsManager updateManager)
 
     public void ListenForGatewayConfigRequest()
     {
-        updateManager.ListenForGatewayConfigRequest();
+        natsManager.ListenForGatewayConfigRequest();
     }
 }

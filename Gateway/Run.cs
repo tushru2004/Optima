@@ -16,7 +16,6 @@ internal class Run
             .MinimumLevel.Information()
             .WriteTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true)
             .CreateLogger();
-        AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
 
         var gatewayId = Environment.GetEnvironmentVariable("GATEWAY_ID")
                         ?? throw new InvalidOperationException("Environment variable 'GATEWAY_ID' is not set.");
@@ -36,37 +35,15 @@ internal class Run
             fileExists ? "exists" : "does not exist",
             fileExists ? $"Content: {content}" : string.Empty
         );
+        var serverNatsManager = new GatewayNatsManager();
+        var connection = serverNatsManager.InitializeConnection(configProvider);
+        AppDomain.CurrentDomain.ProcessExit += (s, e) => serverNatsManager.DisposeConnection();
 
-        InitializeConnection(configProvider);
-
-        var updateManager = new UpdateManager(_connection ?? throw new InvalidOperationException(), configProvider);
+        var updateManager = new UpdateManager(connection ?? throw new InvalidOperationException(), configProvider);
         // This will request config from the server. PULL
         await updateManager.RequestConfigAsync(gatewayId);
         // This will subscribe to server updates. For the use case where the server pushes updates
         updateManager.SubscribeToServerUpdates(gatewayId);
         await Task.Delay(Timeout.Infinite);
-    }
-
-    private static void InitializeConnection(IAppConfigurationProvider configProvider)
-    {
-        var options = ConnectionFactory.GetDefaultOptions();
-        var natsConfig = configProvider.GetSection<NatsConfiguration>("NatsConfiguration");
-        options.Url = natsConfig.Url;
-        try
-        {
-            _connection = new ConnectionFactory().CreateConnection(options);
-            Log.Information("Connected to NATS server");
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to connect to NATS server: {ErrorMessage}", ex.Message);
-            throw;
-        }
-    }
-
-    private static void DisposeConnection()
-    {
-        _connection?.Dispose();
-        Log.Information("NATS connection disposed.");
     }
 }

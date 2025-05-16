@@ -24,11 +24,8 @@ public class UpdateManagerTests
     [Fact]
     public void Publish_ShouldPublishMessagesToAllGateways()
     {
-        // Use the real GetAll method
         var gatewayConfigs = GatewayConfig.GetAll();
-
         _natsManager.Publish();
-
         _mockConnection.Verify(
             c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()),
             Times.Exactly(gatewayConfigs.Count));
