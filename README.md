@@ -130,6 +130,7 @@ _(Limitation: Updates are pushed to all gateways on any config change)_
    ```bash
    docker compose up nats --build
    ```
+   Both the server and all gateways should automatically reconnect to NATS.
 
 ---
 
