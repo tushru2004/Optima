@@ -15,8 +15,10 @@
    git clone git@github.com:tushru2004/Optima.git
    cd Optima
    ```
-2. Optional (For ease of use) - Install Jetbrains Rider for C# development:
+2. Optional But recommended (For ease of use) - Install Jetbrains Rider for C# development:
    - [JetBrains Rider](https://www.jetbrains.com/rider/)
+   - Use the integrated terminal for running commands and see logs 
+   - Formatting of logs are better in Rider because of the library i used for logging
 3. Install Docker Desktop:
     - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 ---
