@@ -15,7 +15,10 @@
    git clone git@github.com:tushru2004/Optima.git
    cd Optima
    ```
-
+2. Optional (For ease of use) - Install Jetbrains Rider for C# development:
+   - [JetBrains Rider](https://www.jetbrains.com/rider/)
+3. Install Docker Desktop:
+    - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 ---
 
 ## Requirements
