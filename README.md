@@ -30,4 +30,8 @@
 - Gateway should be able to get a config on restart (after shutdown or crash):
    ```bash
   git clone git@github.com:tushru2004/Optima.git
-  cd Optima 
+  cd Optima
+
+## Improvements
+- **Inefficient Updates**: Only push updates to gateways where the files have changed.
+- **Use More Configuration**: Add subject names to configuration files in server

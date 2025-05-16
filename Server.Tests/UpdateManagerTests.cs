@@ -13,12 +13,12 @@ namespace Server.Tests;
 public class UpdateManagerTests
 {
     private readonly Mock<IConnection> _mockConnection;
-    private readonly UpdateManager _updateManager;
+    private readonly NatsManager _natsManager;
 
     public UpdateManagerTests()
     {
         _mockConnection = new Mock<IConnection>();
-        _updateManager = new UpdateManager(_mockConnection.Object);
+        _natsManager = new NatsManager(_mockConnection.Object);
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class UpdateManagerTests
         // Use the real GetAll method
         var gatewayConfigs = GatewayConfig.GetAll();
 
-        _updateManager.Publish();
+        _natsManager.Publish();
 
         _mockConnection.Verify(
             c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()), 
@@ -43,7 +43,7 @@ public class UpdateManagerTests
             .Setup(c => c.Publish(It.IsAny<string>(), It.IsAny<byte[]>()))
             .Throws(new Exception("Publish failed"));
 
-        var exception = Assert.Throws<InvalidOperationException>(() => _updateManager.Publish());
+        var exception = Assert.Throws<InvalidOperationException>(() => _natsManager.Publish());
 
         Assert.Equal("Error occurred while publishing message to NATS server.", exception.Message);
     }
@@ -69,7 +69,7 @@ public class UpdateManagerTests
                 handler?.Invoke(this, args);
             });
         
-        _updateManager.ListenForGatewayConfigRequest();
+        _natsManager.ListenForGatewayConfigRequest();
 
         _mockConnection.Verify(
             c => c.Publish(It.Is<string>(s => s == replyTo), It.IsAny<byte[]>()), 
@@ -96,7 +96,7 @@ public class UpdateManagerTests
                 handler?.Invoke(this, args);
             });
         
-        var exception = Assert.Throws<InvalidOperationException>(() => _updateManager.ListenForGatewayConfigRequest());
+        var exception = Assert.Throws<InvalidOperationException>(() => _natsManager.ListenForGatewayConfigRequest());
 
         Assert.Equal("No ReplyTo subject found in the request.", exception.Message);
     }

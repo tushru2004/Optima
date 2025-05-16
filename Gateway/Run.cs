@@ -39,18 +39,13 @@ internal class Run
         );
                 
         InitializeConnection(configProvider);
-        if (_connection != null)
-        {
-            var updateManager = new UpdateManager(_connection, configProvider);
-            await updateManager.RequestConfigAsync(gatewayId);
-            updateManager.SubscribeToServerUpdates(gatewayId);
-            
-            await Task.Delay(Timeout.Infinite);
-        }
-        else
-        {
-            Log.Error("Failed to establish NATS connection. Exiting...");
-        }
+
+        var updateManager = new UpdateManager(_connection ?? throw new InvalidOperationException(), configProvider);
+        // This will request config from the server. PULL
+        await updateManager.RequestConfigAsync(gatewayId);
+        // This will subscribe to server updates. For the use case where the server pushes updates
+        updateManager.SubscribeToServerUpdates(gatewayId);
+        await Task.Delay(Timeout.Infinite);
     }
 
     private static void InitializeConnection(IAppConfigurationProvider configProvider)
@@ -66,6 +61,7 @@ internal class Run
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to connect to NATS server: {ErrorMessage}", ex.Message);
+            throw;
         }
     }
 

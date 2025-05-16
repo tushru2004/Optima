@@ -1,0 +1,1 @@
+{"gateway_id":"00:1A:2B:3C:4D:5E","gateway_name":"Gateway 12","facility_name":"Facility T","Devices":{"tcp_ip":[{"Name":"Device 11","Ip":"192.168.1.1","Port":502},{"Name":"Device 2","Ip":"192.168.1.2","Port":503}],"modbus_rtu":[{"Name":"Modbus Device 10","Address":"1","Register":40001}]}}
