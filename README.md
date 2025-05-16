@@ -12,7 +12,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone git@github.com:tushru2004/Optima.git
+   git clone https://github.com/tushru2004/Optima.git
    cd Optima
    ```
 2. Optional But recommended (For ease of use) - Install Jetbrains Rider for C# development:
