@@ -47,6 +47,14 @@ public class UpdateManager(NatsManager natsManager)
 
     public void ListenForGatewayConfigRequest()
     {
-        natsManager.ListenForGatewayConfigRequest();
+        try
+        {
+            natsManager.ListenForGatewayConfigRequest();
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Error occurred while listening for gateway config requests.");
+            throw;
+        }
     }
 }

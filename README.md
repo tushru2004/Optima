@@ -1,103 +1,168 @@
 # Optima Project
 
-### Resources used
+## Resources Used
 
-- Github Copilot
+- GitHub Copilot
 - StackOverflow
 - JetBrains Rider for C#
 
+---
+
 ## Installation
 
-- Clone the repository:
-  ```bash
-  git clone git@github.com:tushru2004/Optima.git
-  cd Optima
-  ```
+1. Clone the repository:
+   ```bash
+   git clone git@github.com:tushru2004/Optima.git
+   cd Optima
+   ```
+
+---
 
 ## Requirements
 
-### 1. Gateway should be able to get a config on restart (after shutdown or crash):
+### 1. **Gateway should fetch its configuration on restart (after shutdown/crash)**
 
-1. Run Nats in a terminal tab
+1. Start NATS in a terminal:
    ```bash
    docker compose up nats --build
    ```
 
-2. Run Server a the terminal tab
+2. Start the server in another terminal:
    ```bash
    docker compose up server --build
    ```
 
-3. Delete contents of config for gateway_1
+3. Clear the configuration for Gateway 1:
    ```bash
    echo "" > Gateway/config_gateway_1.json
    ```
-   The config file should be empty
-4. Note the config for gateway_1 in server/ConfigurationManagement/AllGatewayConfig.json
+   The config file should now be empty.
+
+4. Check the configuration in the server:
    ```bash
    cat Server/ConfigurationManagement/AllGatewayConfigs.json
    ```
-5. Run Gateway 1 in a terminal tab
+
+5. Start Gateway 1 in another terminal:
    ```bash
    docker compose up gateway_1 --build
    ```
 
-6. Step 5 should fetch config from the server and save it to the disk
-   ```bash  
+6. Verify that Gateway 1 has fetched the config:
+   ```bash
    cat Gateway/config_gateway_1.json
    ```
-   The config file should be populated with the config from the server
+   The config file should now be populated.
 
-### 2. Server should be able to push updates (Limitation: Pushes to all gateways on config change):
+---
 
-1. Run Nats in a terminal tab
+### 2. **Server can push configuration updates**  
+_(Limitation: Updates are pushed to all gateways on any config change)_
+
+1. Reset everything:
+   ```bash
+   docker compose down
+   ```
+
+2. Start NATS in a terminal:
    ```bash
    docker compose up nats --build
    ```
 
-2. Run Server in a terminal tab
+3. Start the server in another terminal:
    ```bash
    docker compose up server --build
    ```
 
-3. Run Gateway 1 in a terminal tab
+4. Start Gateway 1 in another terminal:
    ```bash
    docker compose up gateway_1 --build
    ```
 
-4. Run Gateway 2 in a terminal tab
+5. Similarly start Gateway 2 and 3:
    ```bash
    docker compose up gateway_2 --build
-   ```
-
-5. Run Gateway 3 in a terminal tab
-   ```bash
    docker compose up gateway_3 --build
    ```
 
-6. Open Server/ConfigurationManagement/AllGatewayConfig.json in a text editor
-   and make a change. For example. change the ip address of any tcp ip device for gateway_1.
-   ***Save the file***
+6. Modify the server-side config:
+   Open `Server/ConfigurationManagement/AllGatewayConfig.json` in a text editor and edit, e.g., change a TCP/IP device's IP for Gateway 1. **Save the file** after editing.
 
-7. Open the config file for gateway_1
+7. Verify that the updated config is pushed to Gateway 1:
    ```bash
    cat Gateway/config_gateway_1.json
    ```
-   The config file should be populated with the new ip address
 
-### 3. Nats Server does down
-   
+---
 
-### 4. Config has a structure
+### 3. **NATS Server goes down**
 
-## Improvements and Limitations
+1. Reset everything:
+   ```bash
+   docker compose down
+   ```
 
-- Only push updates to gateways where the files have changed. Currently the server pushes updates to all gateways.
-  This could be changed to only push updates to the gateways whose config files have changed.
-- Add subject names to configuration files in the server
-- Currently, all config files are mapped one-to-one to the gateway. This is due to lack of DB implementation for config
-  management on gateway
-- Only 3 gateways are hardcoded for manual testing
-- Assumes that the server is always up and running. No fallback mechanism for gateway to fetch config from other servers
-- Unit Test coverage could be improved
-- Retry code has values hardcoded. This could be improved by moving them to the configuration
+2. Start NATS in a terminal:
+   ```bash
+   docker compose up nats --build
+   ```
+
+3. Start the server in another terminal:
+   ```bash
+   docker compose up server --build
+   ```
+
+4. Start Gateway 1 in another terminal:
+   ```bash
+   docker compose up gateway_1 --build
+   ```
+
+5. Stop the NATS server:
+   ```bash
+   docker compose down nats
+   ```
+
+6. Confirm retry behavior:
+   After a few seconds, restart NATS:
+   ```bash
+   docker compose up nats --build
+   ```
+
+---
+
+### 4. **Config File Structure Validation**
+
+- **Gateway ID**: Must not be null or empty.
+- **Gateway Name**: Must not be null or empty.
+- **Facility Name**: Must not be null or empty.
+- **TCP/IP Devices**: Must exist and contain at least one device.
+- **Modbus RTU Devices**: Must exist and contain at least one device.
+
+> If the configuration is invalid, the Gateway Config Validator will throw an exception on the server.
+
+---
+
+## Improvements & Limitations
+
+- **Selective Updates:**  
+  Push updates only to gateways whose configs have changed (Currently, updates are pushed to all gateways).
+  
+- **Subject-based Config Files:**  
+  Add subject names in the server's configuration files.
+
+- **DB Implementation for Gateway Configuration:**  
+  Replace the current one-to-one mapping with a more dynamic database-driven mechanism.
+
+- **Hardcoded Gateways for Testing:**  
+  Currently supports only 3 gateways for manual tests.
+
+- **Reliability:**  
+  No fallback mechanism for fetching config if the server is down.
+
+- **Unit Tests:**  
+  Coverage could be improved.
+
+- **Retry Logic:**  
+  Hardcoded retry values should be moved to the configuration files.
+
+---

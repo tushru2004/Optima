@@ -21,14 +21,22 @@ internal class Run
         var serverNatsConfigManager = new ServerNatsConnectionManager();
         AppDomain.CurrentDomain.ProcessExit += (s, e) => serverNatsConfigManager.DisposeConnection();
 
-        var connection = serverNatsConfigManager.InitializeConnection(configProvider);
+        try
+        {
+            var connection = serverNatsConfigManager.InitializeConnection(configProvider);
 
-        var natsManager = new NatsManager(connection ?? throw new InvalidOperationException());
-        var updateManager = new UpdateManager(natsManager);
-        updateManager.ListenForGatewayConfigRequest();
+            var natsManager = new NatsManager(connection ?? throw new InvalidOperationException());
+            var updateManager = new UpdateManager(natsManager);
+            updateManager.ListenForGatewayConfigRequest();
 
-        var appConfig = configProvider.GetSection<AppConfiguration>("AppConfiguration");
-        updateManager.PushUpdates(appConfig.AllGatewayConfigFile);
+            var appConfig = configProvider.GetSection<AppConfiguration>("AppConfiguration");
+            updateManager.PushUpdates(appConfig.AllGatewayConfigFile);
+        }
+        catch (Exception ex)
+        {   
+            Log.Error(ex, " Internal Server Error.");
+            return;
+        }
 
         Log.Information("Server is running. Press Ctrl+C to exit...");
         await Task.Delay(Timeout.Infinite);
