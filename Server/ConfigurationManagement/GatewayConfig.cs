@@ -18,7 +18,7 @@ public class GatewayConfig
     {
         try
         {
-            var json = File.ReadAllText("ConfigurationManagement/ALLGatewayConfigs.json");
+            var json = File.ReadAllText("ConfigurationManagement/AllGatewayConfigs.json");
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
@@ -40,7 +40,7 @@ public class GatewayConfig
     {
         try
         {
-            var json = File.ReadAllText("ConfigurationManagement/ALLGatewayConfigs.json");
+            var json = File.ReadAllText("ConfigurationManagement/AllGatewayConfigs.json");
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true

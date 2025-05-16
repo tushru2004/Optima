@@ -1,24 +1,24 @@
 using Server.Nats;
+using Serilog;
 
 namespace Server.Core;
 
-public class UpdateManager(NatsManager natsManager)
+public class UpdateManager(NatsManager updateManager)
 {
     private static DateTime _lastRead = DateTime.MinValue;
 
-    public void PushUpdates()
+    public void PushUpdates(string filePath)
     {
-        var filePath = "ConfigurationManagement/ALLGatewayConfigs.json";
         var directoryPath = Path.GetDirectoryName(filePath);
 
         if (directoryPath == null || !Directory.Exists(directoryPath))
         {
-            Console.WriteLine($"Directory '{directoryPath}' does not exist.");
+            Log.Warning("Directory does not exist: {DirectoryPath}", directoryPath);
             return;
         }
 
         if (!File.Exists(filePath))
-            Console.WriteLine($"File '{filePath}' does not exist. Watching for changes when it is created...");
+            Log.Information("File does not exist. Watching for changes when it is created: {FilePath}", filePath);
 
         var watcher = new FileSystemWatcher
         {
@@ -34,18 +34,18 @@ public class UpdateManager(NatsManager natsManager)
             if (Math.Abs((currentChange - _lastRead).TotalMilliseconds) > 1000)
             {
                 _lastRead = currentChange;
-                Console.WriteLine($"File '{e.FullPath}' updated. Last write time: {currentChange}");
-                Console.WriteLine($"Time to push updates to ALL gateways");
-                natsManager.Publish();
+                Log.Information("File updated. Last write time: {LastWriteTime}, Path: {FilePath}", currentChange, e.FullPath);
+                Log.Information("Pushing updates to all gateways");
+                updateManager.Publish();
             }
         };
 
         watcher.EnableRaisingEvents = true;
-        Console.WriteLine($"Watching for changes in file: {filePath}");
+        Log.Information("Watching for changes in file: {FilePath}", filePath);
     }
 
     public void ListenForGatewayConfigRequest()
     {
-        natsManager.ListenForGatewayConfigRequest();
+        updateManager.ListenForGatewayConfigRequest();
     }
 }

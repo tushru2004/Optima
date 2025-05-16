@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NATS.Client;
-using Server.ConfigurationManagement.Elements;
+using Server.ConfigurationManagement;
 using Server.Core;
 using Server.Nats;
 using Serilog;
@@ -11,23 +11,17 @@ namespace Server;
 internal class Run
 {
     private static IConnection? _connection;
+    private static IAppConfigurationProvider? _configProvider;
 
     private static void InitializeConnection()
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
-            .WriteTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true)
-            .CreateLogger();
-        
-        AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
-        IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", false, true)
-            .Build();
-        var options = ConnectionFactory.GetDefaultOptions();
-        var natsConfig = configuration.GetSection("NatsConfiguration").Get<NatsConfiguration>()
+
+        _configProvider = new AppConfigurationProvider();
+        var natsConfig = _configProvider.GetSection<ServerNatsConfiguration>("NatsConfiguration")
                          ?? throw new InvalidOperationException(
                              "NatsConfiguration section is missing in appsettings.json");
+
+        var options = ConnectionFactory.GetDefaultOptions();
         options.Url = natsConfig.Url;
         try
         {
@@ -48,13 +42,21 @@ internal class Run
 
     private static async Task Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true)
+            .CreateLogger();
+        AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
+
         InitializeConnection();
-        if (_connection != null)
+        if (_connection != null && _configProvider != null)
         {
             var natsManager = new NatsManager(_connection);
             var updateManager = new UpdateManager(natsManager);
             updateManager.ListenForGatewayConfigRequest();
-            updateManager.PushUpdates();
+
+            var appConfig = _configProvider.GetSection<AppConfiguration>("AppConfiguration");
+            updateManager.PushUpdates(appConfig.AllGatewayConfigFile);
         }
 
         Log.Information("Server is running. Press Ctrl+C to exit...");

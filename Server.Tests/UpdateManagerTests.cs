@@ -5,18 +5,20 @@ using NATS.Client;
 using Server.ConfigurationManagement;
 using Server.Nats;
 using Xunit;
+using Server;
+using Server.Core;
 
 namespace Server.Tests;
 
-public class NatsManagerTests
+public class UpdateManagerTests
 {
     private readonly Mock<IConnection> _mockConnection;
-    private readonly NatsManager _natsManager;
+    private readonly UpdateManager _updateManager;
 
-    public NatsManagerTests()
+    public UpdateManagerTests()
     {
         _mockConnection = new Mock<IConnection>();
-        _natsManager = new NatsManager(_mockConnection.Object);
+        _updateManager = new UpdateManager(_mockConnection.Object);
     }
 
     [Fact]
@@ -25,7 +27,7 @@ public class NatsManagerTests
         // Use the real GetAll method
         var gatewayConfigs = GatewayConfig.GetAll();
 
-        _natsManager.Publish();
+        _updateManager.Publish();
 
         _mockConnection.Verify(
             c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()), 
@@ -41,7 +43,7 @@ public class NatsManagerTests
             .Setup(c => c.Publish(It.IsAny<string>(), It.IsAny<byte[]>()))
             .Throws(new Exception("Publish failed"));
 
-        var exception = Assert.Throws<InvalidOperationException>(() => _natsManager.Publish());
+        var exception = Assert.Throws<InvalidOperationException>(() => _updateManager.Publish());
 
         Assert.Equal("Error occurred while publishing message to NATS server.", exception.Message);
     }
@@ -67,7 +69,7 @@ public class NatsManagerTests
                 handler?.Invoke(this, args);
             });
         
-        _natsManager.ListenForGatewayConfigRequest();
+        _updateManager.ListenForGatewayConfigRequest();
 
         _mockConnection.Verify(
             c => c.Publish(It.Is<string>(s => s == replyTo), It.IsAny<byte[]>()), 
@@ -94,7 +96,7 @@ public class NatsManagerTests
                 handler?.Invoke(this, args);
             });
         
-        var exception = Assert.Throws<InvalidOperationException>(() => _natsManager.ListenForGatewayConfigRequest());
+        var exception = Assert.Throws<InvalidOperationException>(() => _updateManager.ListenForGatewayConfigRequest());
 
         Assert.Equal("No ReplyTo subject found in the request.", exception.Message);
     }

@@ -30,8 +30,8 @@
         <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="ConfigurationManagement\ALLGatewayConfigs.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <None Update="ConfigurationManagement\AllGatewayConfigs.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

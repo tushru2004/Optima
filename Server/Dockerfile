@@ -19,13 +19,7 @@ RUN dotnet publish "./Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY Server/ConfigurationManagement/ALLGatewayConfigs.json /app/ConfigurationManagement
+COPY Server/ConfigurationManagement/AllGatewayConfigs.json /app/ConfigurationManagement
 COPY Server/appsettings.json .
 
-# Add debugging commands
-RUN ls -la /app
-RUN ls -la /app/ConfigurationManagement
-RUN cat /app/appsettings.json
-
-# Change the ENTRYPOINT to use shell form to allow for environment variable expansion
 ENTRYPOINT ["sh", "-c", "dotnet Server.dll"]

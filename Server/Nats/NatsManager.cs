@@ -1,9 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using NATS.Client;
+using Serilog;
 using Server.ConfigurationManagement;
-using Server.ConfigurationManagement.Elements;
 
 namespace Server.Nats;
 
@@ -20,16 +19,16 @@ public class NatsManager(IConnection connection)
             var subject = $"gateway.{gatewayId}.messages";
             var message = JsonSerializer.Serialize(gateway);
 
-            Console.WriteLine($"Attempting to publish message to gateway '{gatewayId}'");
+            Log.Information("Attempting to publish message to gateway '{GatewayId}'", gatewayId);
 
             try
             {
                 _connection.Publish(subject, Encoding.UTF8.GetBytes(message));
-                Console.WriteLine($"Message successfully published to gateway '{gatewayId}'");
+                Log.Information("Message successfully published to gateway '{GatewayId}'", gatewayId);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to publish to gateway '{gatewayId}'");
+                Log.Error(ex, "Failed to publish to gateway '{GatewayId}'", gatewayId);
                 throw new InvalidOperationException("Error occurred while publishing message to NATS server.", ex);
             }
         }
@@ -43,13 +42,13 @@ public class NatsManager(IConnection connection)
             connection.SubscribeAsync(subject, (_, args) =>
             {
                 var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
-                Console.WriteLine($"Received request: {requestMessage}");
+                Log.Information("Received request: {RequestMessage}", requestMessage);
                 var gatewayId = requestMessage;
                 var config = GatewayConfig.GetById(gatewayId);
 
                 if (config == null)
                 {
-                    Console.WriteLine($"No configuration found for gateway ID: {gatewayId}");
+                    Log.Warning("No configuration found for gateway ID: {GatewayId}", gatewayId);
                     return;
                 }
                 if (!string.IsNullOrEmpty(args.Message.Reply))
@@ -57,7 +56,7 @@ public class NatsManager(IConnection connection)
                     var configJson = JsonSerializer.Serialize(config);
                     var responseMessage = $"Response to: {requestMessage}";
                     connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(configJson));
-                    Console.WriteLine($"Sent response: {responseMessage}");
+                    Log.Information("Sent response: {ResponseMessage}", responseMessage);
                 }
                 else
                 {
@@ -67,12 +66,12 @@ public class NatsManager(IConnection connection)
         }
         catch (NATSConnectionException ex)
         {
-            Console.WriteLine($"Failed to connect to the NATS server: {ex.Message}");
+            Log.Error(ex, "Failed to connect to the NATS server: {ErrorMessage}", ex.Message);
             throw;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unexpected error: {ex.Message}");
+            Log.Error(ex, "Unexpected error: {ErrorMessage}", ex.Message);
             throw;
         }
     }
