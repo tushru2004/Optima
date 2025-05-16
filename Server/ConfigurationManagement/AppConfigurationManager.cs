@@ -22,7 +22,7 @@ public class AppConfigurationProvider : IAppConfigurationProvider
 
     public T GetSection<T>(string sectionName) where T : class, new()
     {
-        return _configuration.GetSection(sectionName).Get<T>() 
+        return _configuration.GetSection(sectionName).Get<T>()
                ?? throw new InvalidOperationException($"{sectionName} section is missing in appsettings.json");
     }
 

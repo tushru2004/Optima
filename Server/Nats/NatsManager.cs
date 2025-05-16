@@ -51,6 +51,7 @@ public class NatsManager(IConnection connection)
                     Log.Warning("No configuration found for gateway ID: {GatewayId}", gatewayId);
                     return;
                 }
+
                 if (!string.IsNullOrEmpty(args.Message.Reply))
                 {
                     var configJson = JsonSerializer.Serialize(config);

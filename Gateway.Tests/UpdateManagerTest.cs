@@ -36,13 +36,14 @@ public class UpdateManagerTests
 
         var updateManager = new UpdateManager(_mockConnection.Object, _mockConfigProvider.Object);
 
-        var exception = await Assert.ThrowsAsync<NATSTimeoutException>(
-            () => updateManager.RequestConfigAsync(gatewayId));
+        var exception =
+            await Assert.ThrowsAsync<NATSTimeoutException>(() => updateManager.RequestConfigAsync(gatewayId));
 
         Assert.Contains("timed out", exception.Message);
 
         _mockConnection.Verify(
-            c => c.RequestAsync(pullSubject, It.Is<byte[]>(b => Encoding.UTF8.GetString(b) == gatewayId), It.IsAny<int>()),
+            c => c.RequestAsync(pullSubject, It.Is<byte[]>(b => Encoding.UTF8.GetString(b) == gatewayId),
+                It.IsAny<int>()),
             Times.Once
         );
     }
@@ -54,15 +55,15 @@ public class UpdateManagerTests
         const string configFilePath = "test_config.json";
         const string pullSubject = "gateway.config.pull";
         const string responseContent = "{ \"key\": \"value\" }";
-        
+
         // Create actual response data instead of mocking Msg properties
         var responseData = Encoding.UTF8.GetBytes(responseContent);
-        
+
         _mockConfigProvider.Setup(c => c.GetConfigFilePath())
             .Returns(configFilePath);
         _mockConfigProvider.Setup(c => c.GetSection<NatsConfiguration>("NatsConfiguration"))
             .Returns(new NatsConfiguration { PullSubject = pullSubject });
-        
+
         // Setup the RequestAsync to return a real Msg object
         _mockConnection
             .Setup(c => c.RequestAsync(pullSubject, It.IsAny<byte[]>(), It.IsAny<int>()))

@@ -34,7 +34,8 @@ public class UpdateManager(NatsManager updateManager)
             if (Math.Abs((currentChange - _lastRead).TotalMilliseconds) > 1000)
             {
                 _lastRead = currentChange;
-                Log.Information("File updated. Last write time: {LastWriteTime}, Path: {FilePath}", currentChange, e.FullPath);
+                Log.Information("File updated. Last write time: {LastWriteTime}, Path: {FilePath}", currentChange,
+                    e.FullPath);
                 Log.Information("Pushing updates to all gateways");
                 updateManager.Publish();
             }

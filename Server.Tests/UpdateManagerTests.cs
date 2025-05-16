@@ -30,7 +30,7 @@ public class UpdateManagerTests
         _natsManager.Publish();
 
         _mockConnection.Verify(
-            c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()), 
+            c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()),
             Times.Exactly(gatewayConfigs.Count));
     }
 
@@ -64,15 +64,12 @@ public class UpdateManagerTests
 
         _mockConnection
             .Setup(c => c.SubscribeAsync(subject, It.IsAny<EventHandler<MsgHandlerEventArgs>>()))
-            .Callback<string, EventHandler<MsgHandlerEventArgs>>((_, handler) => 
-            {
-                handler?.Invoke(this, args);
-            });
-        
+            .Callback<string, EventHandler<MsgHandlerEventArgs>>((_, handler) => { handler?.Invoke(this, args); });
+
         _natsManager.ListenForGatewayConfigRequest();
 
         _mockConnection.Verify(
-            c => c.Publish(It.Is<string>(s => s == replyTo), It.IsAny<byte[]>()), 
+            c => c.Publish(It.Is<string>(s => s == replyTo), It.IsAny<byte[]>()),
             Times.Once);
     }
 
@@ -91,11 +88,8 @@ public class UpdateManagerTests
 
         _mockConnection
             .Setup(c => c.SubscribeAsync(subject, It.IsAny<EventHandler<MsgHandlerEventArgs>>()))
-            .Callback<string, EventHandler<MsgHandlerEventArgs>>((_, handler) => 
-            {
-                handler?.Invoke(this, args);
-            });
-        
+            .Callback<string, EventHandler<MsgHandlerEventArgs>>((_, handler) => { handler?.Invoke(this, args); });
+
         var exception = Assert.Throws<InvalidOperationException>(() => _natsManager.ListenForGatewayConfigRequest());
 
         Assert.Equal("No ReplyTo subject found in the request.", exception.Message);

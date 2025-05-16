@@ -1,13 +1,13 @@
 {
   "gateways": [
     {
-      "gateway_id": "00:1A:2B:3C:4D:5E",
+      "gateway_id": "1",
       "gateway_name": "Gateway 12",
       "facility_name": "Facility T",
       "devices": {
         "tcp_ip": [
           {
-            "name": "Device 11",
+            "name": "Device 12",
             "ip": "192.168.1.1",
             "port": 502
           },
@@ -27,7 +27,7 @@
       }
     },
     {
-      "gateway_id": "00:1B:44:11:3A:B7",
+      "gateway_id": "2",
       "gateway_name": "Gateway 2",
       "facility_name": "Facility B",
       "devices": {
@@ -53,7 +53,7 @@
       }
     },
     {
-      "gateway_id": "00:1D:92:7E:5F:2C",
+      "gateway_id": "3",
       "gateway_name": "Gateway 3",
       "facility_name": "Facility C",
       "devices": {

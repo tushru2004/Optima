@@ -32,6 +32,9 @@
   git clone git@github.com:tushru2004/Optima.git
   cd Optima
 
-## Improvements
-- **Inefficient Updates**: Only push updates to gateways where the files have changed.
-- **Use More Configuration**: Add subject names to configuration files in server
+## Improvements and Limitations
+
+- Only push updates to gateways where the files have changed.
+- Add subject names to configuration files in the server
+- Currently, all config files are mapped one-to-one to the gateway. This is due to lack of DB implementation for config
+  management on gateway

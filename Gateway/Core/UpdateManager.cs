@@ -20,21 +20,21 @@ public class UpdateManager
     {
         if (_connection == null)
             throw new InvalidOperationException("NATS connection not initialized");
-            
+
         var gatewayConfigFile = _configProvider.GetConfigFilePath();
         var natsConfig = _configProvider.GetSection<NatsConfiguration>("NatsConfiguration");
         var pullSubject = natsConfig.PullSubject;
-        
+
         try
         {
             var response = await _connection.RequestAsync(pullSubject, Encoding.UTF8.GetBytes(gatewayId), 5000);
             var gatewayConfig = Encoding.UTF8.GetString(response.Data);
-            
-            if (gatewayConfig.Length == 0) 
+
+            if (gatewayConfig.Length == 0)
                 throw new Exception("Received an empty config from the server");
-                
+
             await File.WriteAllTextAsync(gatewayConfigFile, gatewayConfig);
-            
+
             Log.Information("Gateway : {gatewayId} Requested Config from the server", gatewayId);
             Log.Information("Received Config from the server: {ResponseMessage}", gatewayConfig);
         }
@@ -44,14 +44,12 @@ public class UpdateManager
             throw;
         }
     }
-    
+
     public void SubscribeToServerUpdates(string gatewayId)
     {
         if (_connection == null)
             throw new InvalidOperationException("NATS connection not initialized");
-        var gatewayConfigFile = Environment.GetEnvironmentVariable("CONFIG_FILE")
-                                ?? throw new InvalidOperationException("Environment variable 'CONFIG_FILE' is not set.");
-
+        var gatewayConfigFile = _configProvider.GetConfigFilePath();
         var pushSubject = $"gateway.{gatewayId}.messages";
         _connection.SubscribeAsync(pushSubject, (_, msgArgs) =>
         {

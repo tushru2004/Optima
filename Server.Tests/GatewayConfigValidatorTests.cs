@@ -17,11 +17,11 @@ public class GatewayConfigValidatorTests
             {
                 TcpIp = new List<TcpIpDevice>
                 {
-                    new TcpIpDevice { Name = "Device1", Ip = "192.168.1.1", Port = 502 }
+                    new() { Name = "Device1", Ip = "192.168.1.1", Port = 502 }
                 },
                 ModbusRtu = new List<ModbusRtuDevice>
                 {
-                    new ModbusRtuDevice { Name = "Modbus1", Address = "1", Register = 40001 }
+                    new() { Name = "Modbus1", Address = "1", Register = 40001 }
                 }
             }
         };

@@ -15,7 +15,6 @@ internal class Run
 
     private static void InitializeConnection()
     {
-
         _configProvider = new AppConfigurationProvider();
         var natsConfig = _configProvider.GetSection<ServerNatsConfiguration>("NatsConfiguration")
                          ?? throw new InvalidOperationException(
