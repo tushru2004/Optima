@@ -1,5 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5700334E-FF09-4EF3-BD1F-E64F94C80D35}"
 	ProjectSection(SolutionItems) = preProject
 		compose.yaml = compose.yaml
@@ -9,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{BD52C2F4-81E5-499D-946D-50C9A7560309}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Tests", "Gateway.Tests\Gateway.Tests.csproj", "{185747D7-CD4B-42DD-9AA0-6A0E54A95AB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server.Tests", "Server.Tests\Server.Tests.csproj", "{3D4110C0-E36D-40F1-A65C-5BEEEAF79BFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +29,13 @@ Global
 		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACC52BD4-9D00-4136-9EC2-EEFECDD6A9B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{185747D7-CD4B-42DD-9AA0-6A0E54A95AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{185747D7-CD4B-42DD-9AA0-6A0E54A95AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{185747D7-CD4B-42DD-9AA0-6A0E54A95AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{185747D7-CD4B-42DD-9AA0-6A0E54A95AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D4110C0-E36D-40F1-A65C-5BEEEAF79BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D4110C0-E36D-40F1-A65C-5BEEEAF79BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D4110C0-E36D-40F1-A65C-5BEEEAF79BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D4110C0-E36D-40F1-A65C-5BEEEAF79BFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,80 +1,81 @@
 ﻿using NATS.Client;
-using System.Text;
 using Gateway.Core;
-using Microsoft.Extensions.Configuration;
-using Utf8Json;
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Gateway.Configuration;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
+
 namespace Gateway;
 
 internal class Run
 {
     private static IConnection? _connection;
-
     private static async Task Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true)
+            .CreateLogger();
         AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
+
         var gatewayId = Environment.GetEnvironmentVariable("GATEWAY_ID")
                         ?? throw new InvalidOperationException("Environment variable 'GATEWAY_ID' is not set.");
-        Console.WriteLine("Gateway is subscribing to messages...");
-        if (File.Exists("response.json"))
+                        
+        var configProvider = new AppConfigurationProvider();
+        var gatewayConfigFile = configProvider.GetConfigFilePath();
+        
+        Log.Information("Starting gateway application... for gateway id {gatewayId}", gatewayId);
+
+        bool fileExists = File.Exists(gatewayConfigFile);
+        string content = fileExists ? await File.ReadAllTextAsync(gatewayConfigFile) : string.Empty;
+
+        if (content.Length == 0){
+            Log.Warning("Configuration file {FilePath} is empty ", gatewayConfigFile);
+        }
+        Log.Information(
+            "Gateway configuration file {FilePath} {FileStatus}. {FileContent}", 
+            gatewayConfigFile,
+            fileExists ? "exists" : "does not exist",
+            fileExists ? $"Content: {content}" : string.Empty
+        );
+                
+        InitializeConnection(configProvider);
+        if (_connection != null)
         {
-            var jsonContent = await File.ReadAllTextAsync("response.json");
-            Console.WriteLine($"JSON Content: {jsonContent}");
+            var updateManager = new UpdateManager(_connection, configProvider);
+            await updateManager.RequestConfigAsync(gatewayId);
+            updateManager.SubscribeToServerUpdates(gatewayId);
+            
+            await Task.Delay(Timeout.Infinite);
         }
         else
         {
-            Console.WriteLine("File 'response.json' does not exist.");
+            Log.Error("Failed to establish NATS connection. Exiting...");
         }
-        InitializeConnection();
-        if (_connection != null)
-        {
-            var updateManager = new UpdateManager(_connection);
-            await updateManager.RequestConfigAsync(gatewayId);
-        }
-
-        SubscribeToServerUpdates(gatewayId);
-        await Task.Delay(Timeout.Infinite); // Keep the application running
     }
 
-    private static void InitializeConnection()
+    private static void InitializeConnection(IAppConfigurationProvider configProvider)
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", false, true)
-            .Build();
         var options = ConnectionFactory.GetDefaultOptions();
-        var natsConfig = configuration.GetSection("NatsConfiguration").Get<NatsConfiguration>()
-                         ?? throw new InvalidOperationException(
-                             "NatsConfiguration section is missing in appsettings.json");
+        var natsConfig = configProvider.GetSection<NatsConfiguration>("NatsConfiguration");
         options.Url = natsConfig.Url;
-        _connection = new ConnectionFactory().CreateConnection(options);
-        Console.WriteLine("Connected to NATS server");
-    }
-    private static void SubscribeToServerUpdates(string gatewayId)
-    {
-        if (_connection == null)
-            throw new InvalidOperationException("NATS connection not initialized");
-        var subject = $"gateway.{gatewayId}.messages";
-        _connection.SubscribeAsync(subject, (_, msgArgs) =>
+        try
         {
-            var message = Encoding.UTF8.GetString(msgArgs.Message.Data);
-            Console.WriteLine($"Message received on subject '{subject}': {message}");
-            try
-            {
-                var formattedJson = JsonSerializer.PrettyPrint(msgArgs.Message.Data);
-                Console.WriteLine($"Formatted JSON: {formattedJson}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to format message: {ex.Message}");
-            }
-        });
-
-        Console.WriteLine($"Subscribed to subject: {subject}");
+            _connection = new ConnectionFactory().CreateConnection(options);
+            Log.Information("Connected to NATS server");
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Failed to connect to NATS server: {ErrorMessage}", ex.Message);
+        }
     }
 
     private static void DisposeConnection()
     {
         _connection?.Dispose();
-        Console.WriteLine("NATS connection disposed.");
+        Log.Information("NATS connection disposed.");
     }
 }

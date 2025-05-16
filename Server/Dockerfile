@@ -1,5 +1,6 @@
 ﻿FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
-USER $APP_UID
+# Remove the USER directive temporarily to debug permissions
+# USER $APP_UID
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
@@ -20,4 +21,11 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY Server/ConfigurationManagement/ALLGatewayConfigs.json /app/ConfigurationManagement
 COPY Server/appsettings.json .
-ENTRYPOINT ["dotnet", "Server.dll"]
+
+# Add debugging commands
+RUN ls -la /app
+RUN ls -la /app/ConfigurationManagement
+RUN cat /app/appsettings.json
+
+# Change the ENTRYPOINT to use shell form to allow for environment variable expansion
+ENTRYPOINT ["sh", "-c", "dotnet Server.dll"]

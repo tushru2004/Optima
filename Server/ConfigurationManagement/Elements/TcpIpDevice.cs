@@ -1,4 +1,5 @@
 namespace Server.ConfigurationManagement.Elements;
+
 public class TcpIpDevice
 {
     public required string Name { get; set; }

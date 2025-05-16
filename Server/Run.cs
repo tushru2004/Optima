@@ -3,6 +3,8 @@ using NATS.Client;
 using Server.ConfigurationManagement.Elements;
 using Server.Core;
 using Server.Nats;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Server;
 
@@ -12,6 +14,11 @@ internal class Run
 
     private static void InitializeConnection()
     {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.Console(theme: AnsiConsoleTheme.Code, applyThemeToRedirectedOutput: true)
+            .CreateLogger();
+        
         AppDomain.CurrentDomain.ProcessExit += (s, e) => DisposeConnection();
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -25,21 +32,21 @@ internal class Run
         try
         {
             _connection = new ConnectionFactory().CreateConnection(options);
-            Console.WriteLine("Connected to NATS server");
+            Log.Information("Connected to NATS server");
         }
         catch (NATSConnectionException ex)
         {
-            Console.WriteLine($"Failed to connect to NATS server: {ex.Message}");
+            Log.Error(ex, "Failed to connect to NATS server");
             throw;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Unexpected error while connecting to NATS server: {ex.Message}");
+            Log.Error(ex, "Unexpected error while connecting to NATS server");
             throw;
         }
     }
 
-    private static Task Main(string[] args)
+    private static async Task Main(string[] args)
     {
         InitializeConnection();
         if (_connection != null)
@@ -49,15 +56,14 @@ internal class Run
             updateManager.ListenForGatewayConfigRequest();
             updateManager.PushUpdates();
         }
-        Console.WriteLine("Server is running. Press Ctrl+C to exit...");
-        while (true)
-        {
-            Thread.Sleep(1000);
-        }
+
+        Log.Information("Server is running. Press Ctrl+C to exit...");
+        await Task.Delay(Timeout.Infinite);
     }
+
     private static void DisposeConnection()
     {
         _connection?.Dispose();
-        Console.WriteLine("NATS connection disposed.");
+        Log.Information("NATS connection disposed.");
     }
 }

@@ -2,7 +2,7 @@
   "gateways": [
     {
       "gateway_id": "00:1A:2B:3C:4D:5E",
-      "gateway_name": "Gateway 1",
+      "gateway_name": "Gateway 12",
       "facility_name": "Facility Als",
       "devices": {
         "tcp_ip": [
@@ -53,7 +53,7 @@
       }
     },
     {
-      "gateway_id":"00:1D:92:7E:5F:2C",
+      "gateway_id": "00:1D:92:7E:5F:2C",
       "gateway_name": "Gateway 3",
       "facility_name": "Facility C",
       "devices": {

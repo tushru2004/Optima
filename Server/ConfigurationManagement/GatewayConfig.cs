@@ -1,9 +1,9 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Server.ConfigurationManagement.Elements;
 
 namespace Server.ConfigurationManagement;
+
 public class GatewayConfig
 {
     [JsonPropertyName("gateway_id")] public required string GatewayId { get; set; }
@@ -50,9 +50,8 @@ public class GatewayConfig
             if (root?.Gateways == null)
                 throw new Exception("Failed to deserialize GatewayConfig: Gateways list is null");
             foreach (var gateway in root.Gateways)
-            {
-                if (gateway.GatewayId == gatewayId) return gateway;
-            }
+                if (gateway.GatewayId == gatewayId)
+                    return gateway;
 
             return null;
         }

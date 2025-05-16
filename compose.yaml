@@ -6,8 +6,10 @@
       dockerfile: Gateway/Dockerfile
     environment:
       - GATEWAY_ID=00:1A:2B:3C:4D:5E
+      - CONFIG_FILE=/app/gateway_1_config.json
     volumes:
-      - ./Gateway/response.json:/app/response.json
+      - ./Gateway/gateway_1_config.json:/app/gateway_1_config.json
+
   gateway_2:
     image: gateway
     build:
@@ -15,6 +17,9 @@
       dockerfile: Gateway/Dockerfile
     environment:
       - GATEWAY_ID=00:1B:44:11:3A:B7
+      - CONFIG_FILE=/app/gateway_2_config.json
+    volumes:
+      - ./Gateway/gateway_2_config.json:/app/gateway_2_config.json
   
   gateway_3:
     image: gateway
@@ -23,7 +28,10 @@
       dockerfile: Gateway/Dockerfile
     environment:
       - GATEWAY_ID=00:1D:92:7E:5F:2C
-
+      - CONFIG_FILE=/app/gateway_3_config.json
+    volumes:
+      - ./Gateway/gateway_3_config.json:/app/gateway_3_config.json
+      
   server:
     image: server
     build:

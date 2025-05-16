@@ -32,7 +32,6 @@ public class NatsManager(IConnection connection)
                 Console.WriteLine($"Failed to publish to gateway '{gatewayId}'");
                 throw new InvalidOperationException("Error occurred while publishing message to NATS server.", ex);
             }
-
         }
     }
 
@@ -48,7 +47,12 @@ public class NatsManager(IConnection connection)
                 var gatewayId = requestMessage;
                 var config = GatewayConfig.GetById(gatewayId);
 
-                if (config != null && !string.IsNullOrEmpty(args.Message.Reply))
+                if (config == null)
+                {
+                    Console.WriteLine($"No configuration found for gateway ID: {gatewayId}");
+                    return;
+                }
+                if (!string.IsNullOrEmpty(args.Message.Reply))
                 {
                     var configJson = JsonSerializer.Serialize(config);
                     var responseMessage = $"Response to: {requestMessage}";
@@ -57,7 +61,7 @@ public class NatsManager(IConnection connection)
                 }
                 else
                 {
-                    Console.WriteLine("No ReplyTo subject found in the request.");
+                    throw new InvalidOperationException("No ReplyTo subject found in the request.");
                 }
             });
         }
@@ -72,5 +76,4 @@ public class NatsManager(IConnection connection)
             throw;
         }
     }
-
 }

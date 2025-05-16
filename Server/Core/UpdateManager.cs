@@ -18,9 +18,7 @@ public class UpdateManager(NatsManager natsManager)
         }
 
         if (!File.Exists(filePath))
-        {
             Console.WriteLine($"File '{filePath}' does not exist. Watching for changes when it is created...");
-        }
 
         var watcher = new FileSystemWatcher
         {
@@ -40,20 +38,14 @@ public class UpdateManager(NatsManager natsManager)
                 Console.WriteLine($"Time to push updates to ALL gateways");
                 natsManager.Publish();
             }
-
         };
 
         watcher.EnableRaisingEvents = true;
         Console.WriteLine($"Watching for changes in file: {filePath}");
     }
-    
+
     public void ListenForGatewayConfigRequest()
     {
         natsManager.ListenForGatewayConfigRequest();
     }
 }
-
-
-
-
-
