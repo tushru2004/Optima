@@ -152,9 +152,6 @@ _(Limitation: Updates are pushed to all gateways on any config change)_
 
 - **Selective Updates:**  
   Push updates only to gateways whose configs have changed (Currently, updates are pushed to all gateways).
-  
-- **Subject-based Config Files:**  
-  Add subject names in the server's configuration files.
 
 - **DB Implementation for Gateway Configuration:**  
   Replace the current one-to-one mapping with a more dynamic database-driven mechanism.
@@ -167,8 +164,5 @@ _(Limitation: Updates are pushed to all gateways on any config change)_
 
 - **Unit Tests:**  
   Coverage could be improved.
-
-- **Retry Logic:**  
-  Hardcoded retry values should be moved to the configuration files.
 
 ---
