@@ -16,11 +16,9 @@ public class GatewayConfig
 
     public static List<GatewayConfig> GetAll()
     {
-        try
-        {
+        try {
             var json = File.ReadAllText("ConfigurationManagement/AllGatewayConfigs.json");
-            var options = new JsonSerializerOptions
-            {
+            var options = new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true
             };
 
@@ -36,13 +34,10 @@ public class GatewayConfig
         }
     }
 
-    public static GatewayConfig? GetById(string gatewayId)
-    {
-        try
-        {
+    public static GatewayConfig? GetById(string gatewayId) {
+        try {
             var json = File.ReadAllText("ConfigurationManagement/AllGatewayConfigs.json");
-            var options = new JsonSerializerOptions
-            {
+            var options = new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true
             };
 

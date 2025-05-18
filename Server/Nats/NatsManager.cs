@@ -74,8 +74,7 @@ public class NatsManager
     public void ListenForGatewayConfigRequest()
     {
         try {
-            _connection.SubscribeAsync(_gatewayConfigPullSubject, (_, args) =>
-            {
+            _connection.SubscribeAsync(_gatewayConfigPullSubject, (_, args) => {
                 var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
                 Log.Information("Received request from Gateway Id : {RequestMessage}", requestMessage);
                 var gatewayId = requestMessage;

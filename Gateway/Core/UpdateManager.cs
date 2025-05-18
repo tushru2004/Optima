@@ -16,12 +16,14 @@ public class UpdateManager
     public UpdateManager(IConnection connection, IAppConfigurationProvider configProvider) {
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
-        
+        var natsConfig = _configProvider.GetSection<NatsConfiguration>("NatsConfiguration");
+
         _retryPolicy = Policy
             .Handle<NATSNoRespondersException>()
             .WaitAndRetryAsync(
-                2,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                retryCount: natsConfig.MaxRetryAttempts,
+                retryAttempt => TimeSpan.FromSeconds(Math.Pow(natsConfig.RetryBackoffSeconds
+                    , retryAttempt)),
                 (exception, timespan, retryCount, context) =>
                 {
                     Log.Warning(
