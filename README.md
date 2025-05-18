@@ -135,7 +135,23 @@ _(Limitation: Updates are pushed to all gateways on any config change)_
    Both the server and all gateways should automatically reconnect to NATS.
 
 ---
-
+### 4. **Gateway is being restarted but cannot connect with the server  **
+1. Reset everything:
+   ```bash
+   docker compose down
+   ```
+2. Start NATS in a terminal:
+   ```bash
+   docker compose up nats --build
+   ```
+3. Start Gateway 1 in another terminal:
+   ```bash
+   docker compose up gateway_1 --build
+   ```
+4. Notice that the gateway will keep trying to connect to the server. After a few seconds, restart the server:
+   ```bash
+   docker compose up server --build
+   ```
 ### 4. **Config File Structure Validation**
 
 - **Gateway ID**: Must not be null or empty.
