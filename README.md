@@ -135,7 +135,7 @@ _(Limitation: Updates are pushed to all gateways on any config change)_
    Both the server and all gateways should automatically reconnect to NATS.
 
 ---
-### 4. **Gateway is being restarted but cannot connect with the server  **
+### 4. **Gateway is being restarted but cannot connect with the server**
 1. Reset everything:
    ```bash
    docker compose down
