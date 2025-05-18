@@ -25,7 +25,7 @@ internal class Run
         {
             var connection = serverNatsConfigManager.InitializeConnection(configProvider);
 
-            var natsManager = new NatsManager(connection ?? throw new InvalidOperationException());
+            var natsManager = new NatsManager(connection ?? throw new InvalidOperationException(), configProvider);
             var updateManager = new UpdateManager(natsManager);
             updateManager.ListenForGatewayConfigRequest();
 

@@ -7,9 +7,21 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Server.Nats;
 
-public class NatsManager(IConnection connection)
+public class NatsManager
 {
-    private readonly IConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+    private readonly IConnection _connection;
+    private readonly IAppConfigurationProvider _configProvider;
+    private readonly string _gatewayConfigPullSubject;
+    private readonly ServerNatsConfiguration _natsConfig;
+
+    public NatsManager(IConnection connection, IAppConfigurationProvider configProvider)
+    {
+        _connection = connection ?? throw new ArgumentNullException(nameof(connection));;
+        _configProvider = configProvider;
+        
+        _natsConfig = configProvider.GetSection<ServerNatsConfiguration>("ServerNatsConfiguration");
+        _gatewayConfigPullSubject = _natsConfig.GatewayConfigPullSubject;
+    }
 
     public void Publish()
     {
@@ -41,7 +53,7 @@ public class NatsManager(IConnection connection)
     private void PublishGatewayConfig(GatewayConfig gateway)
     {
         var gatewayId = gateway.GatewayId;
-        var subject = $"gateway.{gatewayId}.messages";
+        var subject = string.Format(_natsConfig.GatewayMessageSubjectTemplate, gatewayId);
         
         Log.Information("Attempting to publish message to gateway '{GatewayId}'", gatewayId);
         
@@ -61,42 +73,35 @@ public class NatsManager(IConnection connection)
 
     public void ListenForGatewayConfigRequest()
     {
-        try
-        {
-            const string subject = "gateway.config.pull";
-            connection.SubscribeAsync(subject, (_, args) =>
+        try {
+            _connection.SubscribeAsync(_gatewayConfigPullSubject, (_, args) =>
             {
                 var requestMessage = Encoding.UTF8.GetString(args.Message.Data);
                 Log.Information("Received request from Gateway Id : {RequestMessage}", requestMessage);
                 var gatewayId = requestMessage;
                 var config = GatewayConfig.GetById(gatewayId);
 
-                if (config == null)
-                {
+                if (config == null) {
                     Log.Warning("No configuration found for gateway ID: {GatewayId}", gatewayId);
                     return;
                 }
 
-                if (!string.IsNullOrEmpty(args.Message.Reply))
-                {
+                if (!string.IsNullOrEmpty(args.Message.Reply)) {
                     var configJson = JsonSerializer.Serialize(config);
                     var responseMessage = $"Response to Gateway Id : {requestMessage}";
-                    connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(configJson));
+                    _connection.Publish(args.Message.Reply, Encoding.UTF8.GetBytes(configJson));
                     Log.Information("Sent Config/{ResponseMessage}", responseMessage);
                 }
-                else
-                {
+                else {
                     throw new InvalidOperationException("No ReplyTo subject found in the request.");
                 }
             });
         }
-        catch (NATSConnectionException ex)
-        {
+        catch (NATSConnectionException ex) {
             Log.Error(ex, "Failed to connect to the NATS server: {ErrorMessage}", ex.Message);
             throw;
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             Log.Error(ex, "Unexpected error: {ErrorMessage}", ex.Message);
             throw;
         }

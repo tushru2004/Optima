@@ -2,7 +2,7 @@
   "gateways": [
     {
       "gateway_id": "1",
-      "gateway_name": "Gateway 12",
+      "gateway_name": "Gateway 1",
       "facility_name": "Facility T",
       "devices": {
         "tcp_ip": [

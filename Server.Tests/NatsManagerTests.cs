@@ -1,24 +1,36 @@
 using System.Text;
-using System.Text.Json;
 using Moq;
 using NATS.Client;
 using Server.ConfigurationManagement;
 using Server.Nats;
-using Xunit;
-using Server;
-using Server.Core;
+
 
 namespace Server.Tests;
 
-public class UpdateManagerTests
+public class NatsManagerTests
 {
     private readonly Mock<IConnection> _mockConnection;
+    private readonly Mock<IAppConfigurationProvider> _mockConfigProvider;
     private readonly NatsManager _natsManager;
+    private readonly ServerNatsConfiguration _natsConfig;
 
-    public UpdateManagerTests()
+    public NatsManagerTests()
     {
         _mockConnection = new Mock<IConnection>();
-        _natsManager = new NatsManager(_mockConnection.Object);
+        _mockConfigProvider = new Mock<IAppConfigurationProvider>();
+        
+        // Setup the mock configuration provider to return a NatsConfiguration
+        _natsConfig = new ServerNatsConfiguration
+        {
+            GatewayConfigPullSubject = "gateway.config.pull",
+            GatewayMessageSubjectTemplate = "messages.gateway.{0}"
+        };
+        
+        _mockConfigProvider
+            .Setup(c => c.GetSection<ServerNatsConfiguration>("ServerNatsConfiguration"))
+            .Returns(_natsConfig);
+            
+        _natsManager = new NatsManager(_mockConnection.Object, _mockConfigProvider.Object);
     }
 
     [Fact]
@@ -26,16 +38,20 @@ public class UpdateManagerTests
     {
         var gatewayConfigs = GatewayConfig.GetAll();
         _natsManager.Publish();
-        _mockConnection.Verify(
-            c => c.Publish(It.Is<string>(s => s.StartsWith("gateway.")), It.IsAny<byte[]>()),
-            Times.Exactly(gatewayConfigs.Count));
+        
+        // Verify each gateway has a message published using the template from config
+        foreach (var config in gatewayConfigs)
+        {
+            var expectedSubject = string.Format(_natsConfig.GatewayMessageSubjectTemplate, config.GatewayId);
+            _mockConnection.Verify(
+                c => c.Publish(It.Is<string>(s => s == expectedSubject), It.IsAny<byte[]>()),
+                Times.Once);
+        }
     }
 
     [Fact]
     public void Publish_ShouldThrowException_WhenPublishFails()
     {
-        var gatewayConfigs = GatewayConfig.GetAll();
-
         _mockConnection
             .Setup(c => c.Publish(It.IsAny<string>(), It.IsAny<byte[]>()))
             .Throws(new Exception("Publish failed"));
@@ -48,7 +64,7 @@ public class UpdateManagerTests
     [Fact]
     public void ListenForGatewayConfigRequest_ShouldProcessValidRequests()
     {
-        var subject = "gateway.config.pull";
+        var subject = _natsConfig.GatewayConfigPullSubject;
         var requestMessage = "1";
         var replyTo = "reply-subject";
         var messageData = Encoding.UTF8.GetBytes(requestMessage);
@@ -73,7 +89,7 @@ public class UpdateManagerTests
     [Fact]
     public void ListenForGatewayConfigRequest_ShouldThrowException_WhenNoReplyTo()
     {
-        var subject = "gateway.config.pull";
+        var subject = _natsConfig.GatewayConfigPullSubject;
         var requestMessage = "2";
         var messageData = Encoding.UTF8.GetBytes(requestMessage);
         var args = new MsgHandlerEventArgs(new Msg

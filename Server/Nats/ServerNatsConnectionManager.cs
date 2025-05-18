@@ -19,90 +19,70 @@ public class ServerNatsConnectionManager
         var natsConfig = configProvider.GetSection<ServerNatsConfiguration>("ServerNatsConfiguration");
         options.Url = natsConfig.Url;
     
-        options.MaxReconnect = -1;
-        options.ReconnectWait = 30000;
-        options.AllowReconnect = true;
+        options.MaxReconnect = natsConfig.MaxReconnect;
+        options.ReconnectWait = natsConfig.ReconnectWait;
+        options.AllowReconnect = natsConfig.AllowReconnect;
     
         options.DisconnectedEventHandler = (sender, args) =>
         {
             Log.Warning("Disconnected from NATS server: {Reason}", args.Error?.Message ?? "unknown reason");
-        
             if (!args.Conn.IsClosed())
             {
                 Log.Information("NATS client will attempt automatic reconnection");
                 return;
             }
-        
             Log.Information("Connection is closed, attempting manual reconnection");
         
-            Task.Run(() => 
-            {
-                const int maxReconnectAttempts = 100;
-                const int reconnectIntervalMs = 30000;
-            
-                _connection = TryConnectWithRetry(options, maxReconnectAttempts, reconnectIntervalMs, isReconnect: true);
-            });
-        };
-    
-        options.ReconnectedEventHandler = (sender, args) =>
+        Task.Run(() => 
         {
-            Log.Information("Reconnected to NATS server: {ServerUrl}", args.Conn.ConnectedUrl);
-        };
+            _connection = TryConnectWithRetry(options, natsConfig.MaxReconnectAttempts, 
+                natsConfig.ReconnectIntervalMs, isReconnect: true);
+        });
+    };
     
-        options.ClosedEventHandler = (sender, args) =>
-        {
-            Log.Warning("NATS connection closed: {Reason}", args.Error?.Message ?? "normal closure");
-        };
-
-        const int maxInitialRetries = 20;
-        const int initialRetryIntervalMs = 30000;
+    options.ReconnectedEventHandler = (sender, args) =>
+    {
+        Log.Information("Reconnected to NATS server: {ServerUrl}", args.Conn.ConnectedUrl);
+    };
     
-        return TryConnectWithRetry(options, maxInitialRetries, initialRetryIntervalMs, isReconnect: false);
-    }
+    options.ClosedEventHandler = (sender, args) =>
+    {
+        Log.Warning("NATS connection closed: {Reason}", args.Error?.Message ?? "normal closure");
+    };
+    return TryConnectWithRetry(options, natsConfig.MaxInitialRetries, 
+        natsConfig.InitialRetryIntervalMs, isReconnect: false);
+}
 
     private IConnection? TryConnectWithRetry(Options options, int maxRetries, int retryIntervalMs, bool isReconnect)
     {
         string actionName = isReconnect ? "reconnect" : "connect";
-    
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
-        {
-            try
-            {
-                if (attempt > 1 || isReconnect)
-                {
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                if (attempt > 1 || isReconnect) {
                     Log.Information("Attempt {Attempt} of {MaxRetries} to {Action} to NATS server at {Url}", 
                         attempt, maxRetries, actionName, options.Url);
                 }
-            
                 var connection = new ConnectionFactory().CreateConnection(options);
-            
                 Log.Information("Successfully {Action}ed to NATS server at {Url}", 
                     actionName, options.Url);
-            
                 return connection;
             }
-            catch (Exception ex)
-            {
-                if (attempt == maxRetries)
-                {
+            catch (Exception ex) {
+                if (attempt == maxRetries) {
                     Log.Error(ex, "Failed to {Action} to NATS server after {MaxRetries} attempts", 
                         actionName, maxRetries);
                 
-                    if (!isReconnect)
-                    {
+                    if (!isReconnect) {
                         throw;
                     }
-                
                     return null;
                 }
-            
                 Log.Warning("Failed to {Action} to NATS server: {ErrorMessage}. Retrying in {RetryInterval} seconds...", 
                     actionName, ex.Message, retryIntervalMs / 1000);
             
                 Thread.Sleep(retryIntervalMs);
             }
         }
-    
         return null;
     }
 }

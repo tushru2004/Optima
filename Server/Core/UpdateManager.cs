@@ -10,9 +10,7 @@ public class UpdateManager(NatsManager natsManager)
     public void PushUpdates(string filePath)
     {
         var directoryPath = Path.GetDirectoryName(filePath);
-
-        if (directoryPath == null || !Directory.Exists(directoryPath))
-        {
+        if (directoryPath == null || !Directory.Exists(directoryPath)) {
             Log.Warning("Directory does not exist: {DirectoryPath}", directoryPath);
             return;
         }
@@ -20,17 +18,14 @@ public class UpdateManager(NatsManager natsManager)
         if (!File.Exists(filePath))
             Log.Information("File does not exist. Watching for changes when it is created: {FilePath}", filePath);
 
-        var watcher = new FileSystemWatcher
-        {
+        var watcher = new FileSystemWatcher {
             Path = directoryPath,
             Filter = Path.GetFileName(filePath),
             NotifyFilter = NotifyFilters.LastWrite
         };
 
-        watcher.Changed += (sender, e) =>
-        {
+        watcher.Changed += (sender, e) => {
             var currentChange = File.GetLastWriteTime(e.FullPath);
-
             if (Math.Abs((currentChange - _lastRead).TotalMilliseconds) > 1000)
             {
                 _lastRead = currentChange;
@@ -45,14 +40,11 @@ public class UpdateManager(NatsManager natsManager)
         Log.Information("Watching for changes in file: {FilePath}", filePath);
     }
 
-    public void ListenForGatewayConfigRequest()
-    {
-        try
-        {
+    public void ListenForGatewayConfigRequest() {
+        try {
             natsManager.ListenForGatewayConfigRequest();
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             Log.Error(e, "Error occurred while listening for gateway config requests.");
             throw;
         }

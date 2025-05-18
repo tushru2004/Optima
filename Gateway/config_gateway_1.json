@@ -1,1 +1,1 @@
-{"gateway_id":"1","gateway_name":"Gateway 12","facility_name":"Facility T","Devices":{"tcp_ip":[{"Name":"Device 1","Ip":"192.168.1.12","Port":502},{"Name":"Device 23","Ip":"192.168.1.2","Port":503}],"modbus_rtu":[{"Name":"Modbus Device 10","Address":"1","Register":40001}]}}
+{"gateway_id":"1","gateway_name":"Gateway 1","facility_name":"Facility T","Devices":{"tcp_ip":[{"Name":"Device 1","Ip":"192.168.1.12","Port":502},{"Name":"Device 23","Ip":"192.168.1.2","Port":503}],"modbus_rtu":[{"Name":"Modbus Device 10","Address":"1","Register":40001}]}}

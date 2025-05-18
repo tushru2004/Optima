@@ -43,7 +43,7 @@
    ```
    The config file should now be empty.
 
-4. Check the configuration in the server:
+4. Check the configuration in the server and note down the config for gateway with id 1:
    ```bash
    cat Server/ConfigurationManagement/AllGatewayConfigs.json
    ```
